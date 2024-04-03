@@ -1,9 +1,27 @@
 # 排序的相关概念
 
 **排序**：所谓排序，就是使一串记录，按照其中的某个或某些关键字的大小，递增或递减的排列起来的操作。
+
 **稳定性**：**假定在待排序的记录序列中，存在多个具有相同的关键字的记录，若经过排序，这些记录的相对次序保持不变，即在原序列中，r[i]=r[j]，且r[i]在r[j]之前，而在排序后的序列中，r[i]仍在r[j]之前，则称这种排序算法是稳定的；否则称为不稳定的。**
+
 **内部排序**：数据元素全部放在内存中的排序。
+
 **外部排序**：数据元素太多不能同时放在内存中，根据排序过程的要求不能在内外存之间移动数据的排序。
+
+**复杂度分析**：
+
+|          |  时间复杂度   | 空间复杂度 | 稳定性 |
+| :------: | :-----------: | :--------: | :----: |
+| 插入排序 |   $O(n^2)$    |            |        |
+| 希尔排序 | $O(n*log(n))$ |            |        |
+| 选择排序 |   $O(n^2)$    |            |        |
+|  堆排序  | $O(n*log(n))$ |            |        |
+| 冒泡排序 |      $$       |            |        |
+| 快速排序 |      $$       |            |        |
+| 归并排序 |      $$       |            |        |
+| 计数排序 |      $$       |            |        |
+
+
 
 # 插入排序
 
@@ -56,9 +74,9 @@ void shell_sort(int arr[], int len) {
 
 # 选择排序
 
-## 传统选择
+## 直接选择排序
 
-遍历整个序列未排序的部分，每次都找到序列中最小的值，然后将其与序列最左端的值进行交换。**是效率最低下的排序之一**
+遍历直接序列未排序的部分，每次都找到序列中最小的值，然后将其与序列最左端的值进行交换。**是效率最低下的排序之一**
 
 ```cpp
 #include <algorithm>
@@ -135,7 +153,7 @@ void bubble_sort(int arr[], int n) {
 
 ## 快速排序
 
-整体思想是采用了分治算法的思想。
+整体思想是采用了**分治**算法的思想。
 
 首先选出一个基准值（key），一般默认都是序列最左端的那个数，然后每次进行快排后，这个基准值都被放到了正确位置（该基准值左侧都比其本身小，基准值右侧都比其本身大）。
 
@@ -173,9 +191,44 @@ void quick_sort(int arr[], int low, int high) {
 }
 ```
 
+C++ std::sort代码
+
+```cpp
+#include <functional> // 包含 std::less
+
+template<typename RandomIt, typename Compare>
+void quick_sort(RandomIt first, RandomIt last, Compare comp) {
+    if (first == last || first + 1 == last) return;
+
+    // 选择中间元素作为 pivot
+    RandomIt pivot = first + (last - first) / 2;
+    RandomIt left = first;
+    RandomIt right = last - 1;
+    
+    while (left <= right) {
+        while (comp(*left, *pivot)) ++left;
+        while (comp(*pivot, *right)) --right;
+        if (left <= right) {
+            std::swap(*left, *right);
+            ++left;
+            --right;
+        }
+    }
+
+    quick_sort(first, right + 1, comp);
+    quick_sort(left, last, comp);
+}
+template<typename RandomIt, typename Compare = std::less<typename RandomIt::value_type>>
+void sort(RandomIt first, RandomIt last, Compare comp = Compare()) {
+    quick_sort(first, last, comp);
+}
+```
+
 # 归并排序
 
-首先，`merge` 函数用于合并两个已排序的子数组。然后，`mergeSort` 函数对数组进行递归地分割和排序。
+基本思想是将待排序数组**递归地分成两个子数组**，直到子数组的长度为1，然后将两个有序子数组合并成一个有序数组。这个过程不断地重复，直到整个数组变为有序。
+
+它将两个有序子数组合并成一个有序数组。合并过程中，**我们需要比较两个子数组的元素，并将较小（或较大）的元素依次放入临时数组中**，直到其中一个子数组的所有元素都被放入**临时数组**。(由于要开辟临时数组，所以会有额外的内存开销)。然后，将另一个子数组的剩余元素依次放入临时数组中。最后，将临时数组中的元素复制回原始数组的对应位置，完成合并操作。
 
 ```cpp
 #include <merge_sort.h>
@@ -239,11 +292,11 @@ void merge_sort(int arr[], int l, int r)
 }
 ```
 
-
-
 # 分布排序
 
 ## 计数排序
+
+计数排序的特点是，它不需要进行元素之间的比较，而是利用元素的值作为下标，在计数数组中统计出现次数。因此，计数排序具有线性时间复杂度，通常情况下为 $O(n+k)$，其中 n 是数组的长度，k 是数组中的最大元素值。然而，计数排序的**空间复杂度较高**，因为需要额外的计数数组来存储元素出现次数。计数排序适用于待排序元素取值范围不太大的情况，如果最大元素值与数组长度相差过大，则可能造成空间浪费。
 
 ```cpp
 void count_sort(int arr[], int n) 
